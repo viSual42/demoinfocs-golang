@@ -6,8 +6,8 @@ import (
 	"io"
 	"time"
 
-	common "github.com/markus-wa/demoinfocs-golang/common"
-	events "github.com/markus-wa/demoinfocs-golang/events"
+	"github.com/markus-wa/demoinfocs-golang/common"
+	"github.com/markus-wa/demoinfocs-golang/events"
 )
 
 const maxOsPath = 260
@@ -35,8 +35,13 @@ var (
 // If not done manually this will be called by Parser.ParseNextFrame() or Parser.ParseToEnd().
 //
 // Returns ErrInvalidFileType if the filestamp (first 8 bytes) doesn't match HL2DEMO.
-func (p *Parser) ParseHeader() (common.DemoHeader, error) {
-	var h common.DemoHeader
+func (p *Parser) ParseHeader() (h common.DemoHeader, err error) {
+	// we should also check for EOF if file isnt a demo file
+	defer func() {
+		if err == nil {
+			err = recoverFromUnexpectedEOF(recover())
+		}
+	}()
 	h.Filestamp = p.bitReader.ReadCString(8)
 	h.Protocol = p.bitReader.ReadSignedInt(32)
 	h.NetworkProtocol = p.bitReader.ReadSignedInt(32)
@@ -107,7 +112,12 @@ func (p *Parser) ParseToEnd() (err error) {
 
 func recoverFromUnexpectedEOF(r interface{}) error {
 	if r != nil {
+		fmt.Println(r)
 		if r == io.ErrUnexpectedEOF {
+			return ErrUnexpectedEndOfDemo
+		}
+		// we should also check for regular EOF
+		if r == io.EOF {
 			return ErrUnexpectedEndOfDemo
 		}
 		panic(r)
