@@ -16,10 +16,10 @@ import (
 	proto "github.com/gogo/protobuf/proto"
 	dispatch "github.com/markus-wa/godispatch"
 
-	dem "github.com/markus-wa/demoinfocs-golang"
-	common "github.com/markus-wa/demoinfocs-golang/common"
-	events "github.com/markus-wa/demoinfocs-golang/events"
-	msg "github.com/markus-wa/demoinfocs-golang/msg"
+	dem "github.com/visual42/demoinfocs-golang"
+	common "github.com/visual42/demoinfocs-golang/common"
+	events "github.com/visual42/demoinfocs-golang/events"
+	msg "github.com/visual42/demoinfocs-golang/msg"
 )
 
 const csDemosPath = "cs-demos"

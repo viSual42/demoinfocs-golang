@@ -1,8 +1,8 @@
 package demoinfocs
 
 import (
-	"github.com/markus-wa/demoinfocs-golang/common"
-	st "github.com/markus-wa/demoinfocs-golang/sendtables"
+	"github.com/visual42/demoinfocs-golang/common"
+	st "github.com/visual42/demoinfocs-golang/sendtables"
 )
 
 //go:generate ifacemaker -f game_state.go -s GameState -i IGameState -p demoinfocs -D -y "IGameState is an auto-generated interface for GameState." -c "DO NOT EDIT: Auto generated" -o game_state_interface.go

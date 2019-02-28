@@ -6,9 +6,9 @@ import (
 
 	r3 "github.com/golang/geo/r3"
 
-	common "github.com/markus-wa/demoinfocs-golang/common"
-	events "github.com/markus-wa/demoinfocs-golang/events"
-	msg "github.com/markus-wa/demoinfocs-golang/msg"
+	common "github.com/visual42/demoinfocs-golang/common"
+	events "github.com/visual42/demoinfocs-golang/events"
+	msg "github.com/visual42/demoinfocs-golang/msg"
 )
 
 func (p *Parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {

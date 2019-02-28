@@ -8,9 +8,9 @@ import (
 	dp "github.com/markus-wa/godispatch"
 	mock "github.com/stretchr/testify/mock"
 
-	dem "github.com/markus-wa/demoinfocs-golang"
-	common "github.com/markus-wa/demoinfocs-golang/common"
-	st "github.com/markus-wa/demoinfocs-golang/sendtables"
+	dem "github.com/visual42/demoinfocs-golang"
+	common "github.com/visual42/demoinfocs-golang/common"
+	st "github.com/visual42/demoinfocs-golang/sendtables"
 )
 
 // Parser is a mock for of demoinfocs.IParser.

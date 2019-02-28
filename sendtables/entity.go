@@ -6,7 +6,7 @@ import (
 
 	r3 "github.com/golang/geo/r3"
 
-	bit "github.com/markus-wa/demoinfocs-golang/bitread"
+	bit "github.com/visual42/demoinfocs-golang/bitread"
 )
 
 // Entity stores a entity in the game (e.g. players etc.) with its properties.

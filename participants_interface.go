@@ -3,7 +3,7 @@
 package demoinfocs
 
 import (
-	"github.com/markus-wa/demoinfocs-golang/common"
+	"github.com/visual42/demoinfocs-golang/common"
 )
 
 // IParticipants is an auto-generated interface for Participants.

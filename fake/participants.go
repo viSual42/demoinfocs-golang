@@ -3,7 +3,7 @@ package fake
 import (
 	mock "github.com/stretchr/testify/mock"
 
-	common "github.com/markus-wa/demoinfocs-golang/common"
+	common "github.com/visual42/demoinfocs-golang/common"
 )
 
 // Participants is a mock for of demoinfocs.IParticipants.

@@ -3,8 +3,8 @@
 package demoinfocs
 
 import (
-	"github.com/markus-wa/demoinfocs-golang/common"
-	st "github.com/markus-wa/demoinfocs-golang/sendtables"
+	"github.com/visual42/demoinfocs-golang/common"
+	st "github.com/visual42/demoinfocs-golang/sendtables"
 )
 
 // IGameState is an auto-generated interface for GameState.

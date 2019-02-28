@@ -5,8 +5,8 @@ package demoinfocs
 import (
 	"time"
 
-	common "github.com/markus-wa/demoinfocs-golang/common"
-	st "github.com/markus-wa/demoinfocs-golang/sendtables"
+	common "github.com/visual42/demoinfocs-golang/common"
+	st "github.com/visual42/demoinfocs-golang/sendtables"
 	dp "github.com/markus-wa/godispatch"
 )
 

@@ -10,8 +10,8 @@ import (
 
 	r3 "github.com/golang/geo/r3"
 
-	common "github.com/markus-wa/demoinfocs-golang/common"
-	msg "github.com/markus-wa/demoinfocs-golang/msg"
+	common "github.com/visual42/demoinfocs-golang/common"
+	msg "github.com/visual42/demoinfocs-golang/msg"
 )
 
 // TickDone signals that a tick is done.
