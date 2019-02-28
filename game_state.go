@@ -24,6 +24,7 @@ type GameState struct {
 	isWarmupPeriod     bool
 	isMatchStarted     bool
 	lastFlasher        *common.Player // Last player whose flash exploded, used to find the attacker for player_blind events
+	currentDefuser     *common.Player // Player currently defusing the bomb, if any
 }
 
 type ingameTickNumber int
@@ -38,6 +39,19 @@ func (gs *GameState) handleIngameTickNumber(n ingameTickNumber) {
 // Watch out, I've seen this return wonky negative numbers at the start of demos.
 func (gs GameState) IngameTick() int {
 	return gs.ingameTick
+}
+
+// Team returns the TeamState corresponding to team.
+// Returns nil if team != TeamTerrorists && team != TeamCounterTerrorists.
+//
+// Make sure to handle swapping sides properly if you keep the reference.
+func (gs *GameState) Team(team common.Team) *common.TeamState {
+	if team == common.TeamTerrorists {
+		return &gs.tState
+	} else if team == common.TeamCounterTerrorists {
+		return &gs.ctState
+	}
+	return nil
 }
 
 // TeamCounterTerrorists returns the TeamState of the CT team.
@@ -102,14 +116,21 @@ func (gs GameState) IsMatchStarted() bool {
 	return gs.isMatchStarted
 }
 
-func newGameState() GameState {
-	return GameState{
+func newGameState() *GameState {
+	gs := &GameState{
 		playersByEntityID:  make(map[int]*common.Player),
 		playersByUserID:    make(map[int]*common.Player),
 		grenadeProjectiles: make(map[int]*common.GrenadeProjectile),
 		infernos:           make(map[int]*common.Inferno),
 		entities:           make(map[int]*st.Entity),
+		tState:             common.NewTeamState(common.TeamTerrorists),
+		ctState:            common.NewTeamState(common.TeamCounterTerrorists),
 	}
+
+	gs.tState.Opponent = &gs.ctState
+	gs.ctState.Opponent = &gs.tState
+
+	return gs
 }
 
 // Participants provides helper functions on top of the currently connected players.

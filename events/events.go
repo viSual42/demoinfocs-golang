@@ -61,9 +61,11 @@ const (
 // Attention: TeamState.Score() won't be up to date yet after this.
 // Add +1 to the winner's score as a workaround.
 type RoundEnd struct {
-	Message string
-	Reason  RoundEndReason
-	Winner  common.Team
+	Message     string
+	Reason      RoundEndReason
+	Winner      common.Team
+	WinnerState *common.TeamState // TeamState of the winner. May be nil if it's a draw (Winner == TeamSpectators)
+	LoserState  *common.TeamState // TeamState of the loser. May be nil if it's a draw (Winner == TeamSpectators)
 }
 
 // RoundEndOfficial signals that the round has 'officially' ended.
@@ -107,11 +109,20 @@ type Footstep struct {
 
 // PlayerTeamChange occurs when a player swaps teams.
 type PlayerTeamChange struct {
-	Player  *common.Player
+	Player *common.Player
+
 	NewTeam common.Team
+	// TeamState of the old team.
+	// May be nil if player changed from spectators/unassigned (OldTeam == TeamSpectators || OldTeam == TeamUnassigned).
+	NewTeamState *common.TeamState
+
 	OldTeam common.Team
-	Silent  bool
-	IsBot   bool
+	// TeamState of the old team.
+	// May be nil if player changed from spectators/unassigned (OldTeam == TeamSpectators || OldTeam == TeamUnassigned).
+	OldTeamState *common.TeamState
+
+	Silent bool
+	IsBot  bool
 }
 
 // PlayerJump signals that a player has jumped.
@@ -282,6 +293,13 @@ type BombDefuseStart struct {
 }
 
 func (BombDefuseStart) implementsBombEventIf() {}
+
+// BombDefuseAborted signals that the defuser aborted the action.
+type BombDefuseAborted struct {
+	Player *common.Player
+}
+
+func (BombDefuseAborted) implementsBombEventIf() {}
 
 // BombDropped signals that the bomb (C4) has been dropped onto the ground.
 // Not fired if it has been dropped to another player (see BombPickup for this).

@@ -105,6 +105,8 @@ func (b Bomb) Position() r3.Vector {
 
 // TeamState contains a team's ID, score, clan name & country flag.
 type TeamState struct {
+	team Team
+
 	// ID stays the same even after switching sides.
 	ID int
 
@@ -115,4 +117,16 @@ type TeamState struct {
 	//
 	// Watch out, in some demos this is upper-case and in some lower-case.
 	Flag string
+
+	// Terrorist TeamState for CTs, CT TeamState for Terrorists
+	Opponent *TeamState
+}
+
+// Team returns the team for which the TeamState contains data.
+func (ts TeamState) Team() Team {
+	return ts.team
+}
+
+func NewTeamState(team Team) TeamState {
+	return TeamState{team: team}
 }

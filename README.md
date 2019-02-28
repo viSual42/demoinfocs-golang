@@ -1,6 +1,6 @@
-# demoinfocs-golang - A CSGO Demo Parser
+# demoinfocs-golang - A CS:GO Demo Parser
 
-Is a Go library for super fast parsing and analysing of Counter Strike: Global Offensive (CSGO) demos (aka replays). It is based on [Valve's demoinfogo](https://github.com/ValveSoftware/csgo-demoinfo) and [SatsHelix's demoinfo](https://github.com/StatsHelix/demoinfo).
+Is a Go library for super fast parsing and analysing of Counter Strike: Global Offensive (CS:GO) demos (aka replays). It is based on [Valve's demoinfogo](https://github.com/ValveSoftware/csgo-demoinfo) and [SatsHelix's demoinfo](https://github.com/StatsHelix/demoinfo).
 
 [![GoDoc](https://godoc.org/github.com/markus-wa/demoinfocs-golang?status.svg)](https://godoc.org/github.com/markus-wa/demoinfocs-golang)
 [![Build Status](https://travis-ci.org/markus-wa/demoinfocs-golang.svg?branch=master)](https://travis-ci.org/markus-wa/demoinfocs-golang)
@@ -148,6 +148,12 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 There is one caveat however: Beta features - which are marked as such via comments and in release notes - may change in minor releases.
 
 It's recommended to use some kind of dependency management system such as [dep](https://github.com/golang/dep) to ensure reproducible builds.
+
+## Projects using demoinfocs-golang
+
+- [noesis.gg](https://www.noesis.gg/) - A suite of explorative tools to help you analyze and improve your CS:GO performance.
+
+If your project is using this library feel free to submit a PR or send a message in Gitter to be included in the list.
 
 ## Development
 

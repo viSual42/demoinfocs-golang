@@ -75,6 +75,14 @@ func (p *Parser) ParseHeader() (h common.DemoHeader, err error) {
 // See also: ParseNextFrame() for other possible errors.
 func (p *Parser) ParseToEnd() (err error) {
 	defer func() {
+		// Make sure all the messages of the demo are handled
+		p.msgDispatcher.SyncAllQueues()
+
+		// Close msgQueue
+		if p.msgQueue != nil {
+			close(p.msgQueue)
+		}
+
 		if err == nil {
 			err = recoverFromUnexpectedEOF(recover())
 		}
@@ -94,12 +102,6 @@ func (p *Parser) ParseToEnd() (err error) {
 
 		default:
 			if !p.parseFrame() {
-				// Make sure all the messages of the demo are handled
-				p.msgDispatcher.SyncAllQueues()
-
-				// Close msgQueue
-				close(p.msgQueue)
-
 				return p.error()
 			}
 		}
@@ -112,12 +114,7 @@ func (p *Parser) ParseToEnd() (err error) {
 
 func recoverFromUnexpectedEOF(r interface{}) error {
 	if r != nil {
-		fmt.Println(r)
-		if r == io.ErrUnexpectedEOF {
-			return ErrUnexpectedEndOfDemo
-		}
-		// we should also check for regular EOF
-		if r == io.EOF {
+		if r == io.ErrUnexpectedEOF || r == io.EOF {
 			return ErrUnexpectedEndOfDemo
 		}
 		panic(r)

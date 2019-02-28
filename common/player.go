@@ -31,8 +31,10 @@ type Player struct {
 	ViewDirectionY              float32
 	FlashDuration               float32 // Blindness duration from the flashbang currently affecting the player (seconds)
 	Team                        Team
+	TeamState                   *TeamState // When keeping the reference make sure you notice when the player changes teams
 	IsBot                       bool
 	IsDucking                   bool
+	IsDefusing                  bool
 	HasDefuseKit                bool
 	HasHelmet                   bool
 }

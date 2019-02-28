@@ -59,19 +59,19 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	case "round_end": // Round ended and the winner was announced
 		data = mapGameEventData(d, ge)
 
-		t := common.TeamSpectators
-
-		switch data["winner"].GetValByte() {
-		case int32(p.gameState.tState.ID):
-			t = common.TeamTerrorists
-		case int32(p.gameState.ctState.ID):
-			t = common.TeamCounterTerrorists
+		winner := common.Team(data["winner"].ValByte)
+		winnerState := p.gameState.Team(winner)
+		var loserState *common.TeamState
+		if winnerState != nil {
+			loserState = winnerState.Opponent
 		}
 
 		p.eventDispatcher.Dispatch(events.RoundEnd{
-			Message: data["message"].GetValString(),
-			Reason:  events.RoundEndReason(data["reason"].GetValByte()),
-			Winner:  t,
+			Message:     data["message"].GetValString(),
+			Reason:      events.RoundEndReason(data["reason"].GetValByte()),
+			Winner:      winner,
+			WinnerState: winnerState,
+			LoserState:  loserState,
 		})
 
 	case "round_officially_ended": // The event after which you get teleported to the spawn (=> You can still walk around between round_end and this event)
@@ -270,12 +270,15 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 			if player.Team != newTeam {
 				player.Team = newTeam
 
+				oldTeam := common.Team(data["oldteam"].GetValByte())
 				p.eventDispatcher.Dispatch(events.PlayerTeamChange{
-					Player:  player,
-					IsBot:   data["isbot"].GetValBool(),
-					Silent:  data["silent"].GetValBool(),
-					NewTeam: newTeam,
-					OldTeam: common.Team(data["oldteam"].GetValByte()),
+					Player:       player,
+					IsBot:        data["isbot"].GetValBool(),
+					Silent:       data["silent"].GetValBool(),
+					NewTeam:      newTeam,
+					NewTeamState: p.gameState.Team(newTeam),
+					OldTeam:      oldTeam,
+					OldTeamState: p.gameState.Team(oldTeam),
 				})
 			} else {
 				p.eventDispatcher.Dispatch(events.ParserWarn{
@@ -331,15 +334,19 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 			p.eventDispatcher.Dispatch(events.BombPlanted{BombEvent: e})
 		case "bomb_defused":
 			p.eventDispatcher.Dispatch(events.BombDefused{BombEvent: e})
+			p.gameState.currentDefuser = nil
 		case "bomb_exploded":
 			p.eventDispatcher.Dispatch(events.BombExplode{BombEvent: e})
+			p.gameState.currentDefuser = nil
 		}
 
 	case "bomb_begindefuse": // Defuse started
 		data = mapGameEventData(d, ge)
 
+		p.gameState.currentDefuser = p.gameState.playersByUserID[int(data["userid"].GetValShort())]
+
 		p.eventDispatcher.Dispatch(events.BombDefuseStart{
-			Player: p.gameState.playersByUserID[int(data["userid"].GetValShort())],
+			Player: p.gameState.currentDefuser,
 			HasKit: data["haskit"].GetValBool(),
 		})
 
