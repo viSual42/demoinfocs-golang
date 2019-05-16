@@ -13,11 +13,11 @@ import (
 	"github.com/golang/geo/r3"
 	"github.com/llgcode/draw2d/draw2dimg"
 
-	dem "github.com/markus-wa/demoinfocs-golang"
-	"github.com/markus-wa/demoinfocs-golang/common"
-	"github.com/markus-wa/demoinfocs-golang/events"
-	ex "github.com/markus-wa/demoinfocs-golang/examples"
-	"github.com/markus-wa/demoinfocs-golang/metadata"
+	dem "github.com/visual42/demoinfocs-golang"
+	"github.com/visual42/demoinfocs-golang/common"
+	"github.com/visual42/demoinfocs-golang/events"
+	ex "github.com/visual42/demoinfocs-golang/examples"
+	"github.com/visual42/demoinfocs-golang/metadata"
 )
 
 type nadePath struct {

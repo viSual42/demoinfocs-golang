@@ -4,7 +4,7 @@ package sendtables
 
 import (
 	r3 "github.com/golang/geo/r3"
-	bit "github.com/markus-wa/demoinfocs-golang/bitread"
+	bit "github.com/visual42/demoinfocs-golang/bitread"
 )
 
 // IEntity is an auto-generated interface for Entity, intended to be used when mockability is needed.

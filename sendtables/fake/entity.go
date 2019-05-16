@@ -4,9 +4,9 @@ package fake
 
 import (
 	"github.com/golang/geo/r3"
-	"github.com/markus-wa/demoinfocs-golang/bitread"
-	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 	"github.com/stretchr/testify/mock"
+	"github.com/visual42/demoinfocs-golang/bitread"
+	st "github.com/visual42/demoinfocs-golang/sendtables"
 )
 
 // Entity is a mock for of sendtables.IEntity.
