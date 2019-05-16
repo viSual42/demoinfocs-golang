@@ -158,7 +158,7 @@ func (p *Parser) bindBombSites() {
 
 func (p *Parser) bindPlayers() {
 	p.stParser.ServerClasses().FindByName("CCSPlayer").OnEntityCreated(func(player *st.Entity) {
-		p.bindNewPlayer(*player)
+		p.bindNewPlayer(player)
 	})
 
 	p.stParser.ServerClasses().FindByName("CCSPlayerResource").OnEntityCreated(func(plInfo *st.Entity) {
