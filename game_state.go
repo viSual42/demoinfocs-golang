@@ -41,6 +41,10 @@ func (gs GameState) IngameTick() int {
 	return gs.ingameTick
 }
 
+func (gs GameState) GamePhase() common.GamePhase {
+	return gs.gamePhase
+}
+
 // Team returns the TeamState corresponding to team.
 // Returns nil if team != TeamTerrorists && team != TeamCounterTerrorists.
 //

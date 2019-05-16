@@ -48,4 +48,6 @@ type IGameState interface {
 	IsWarmupPeriod() bool
 	// IsMatchStarted returns whether the match has started according to CCSGameRulesProxy.
 	IsMatchStarted() bool
+	// GamePhase returns current gamePhase
+	GamePhase() common.GamePhase
 }
