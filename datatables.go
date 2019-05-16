@@ -178,27 +178,46 @@ func (p *Parser) bindPlayers() {
 	})
 }
 
-func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
-	var pl *common.Player
-	playerIndex := playerEntity.ID()
-	if p.gameState.playersByEntityID[playerIndex] != nil {
-		pl = p.gameState.playersByEntityID[playerIndex]
-	} else {
-		pl = common.NewPlayer()
-		p.gameState.playersByEntityID[playerIndex] = pl
-		pl.SteamID = -1
-		pl.Name = "unconnected"
-	}
+func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
+	entityID := playerEntity.ID()
+	rp := p.rawPlayers[entityID-1]
 
-	pl.EntityID = playerEntity.ID()
+	isNew := false
+	pl := p.gameState.playersByEntityID[entityID]
+	if pl == nil {
+		pl = p.gameState.playersByUserID[rp.userID]
+
+		if pl == nil {
+			isNew = true
+
+			// TODO: read tickRate from CVARs as fallback
+			pl = common.NewPlayer(p.header.TickRate(), p.gameState.IngameTick)
+			pl.Name = rp.name
+			pl.SteamID = rp.xuid
+			pl.IsBot = rp.isFakePlayer || rp.guid == "BOT"
+			pl.UserID = rp.userID
+		}
+	}
+	p.gameState.playersByEntityID[entityID] = pl
+	p.gameState.playersByUserID[rp.userID] = pl
+
+	pl.EntityID = entityID
 	pl.Entity = playerEntity
+	pl.AdditionalPlayerInformation = &p.additionalPlayerInfo[entityID]
+	pl.IsConnected = true
 
 	playerEntity.OnDestroy(func() {
-		delete(p.gameState.playersByEntityID, pl.EntityID)
+		delete(p.gameState.playersByEntityID, entityID)
+		pl.Entity = nil
 	})
 
 	// Position
-	playerEntity.BindPosition(&pl.Position)
+	playerEntity.OnPositionUpdate(func(pos r3.Vector) {
+		pl.Position = pos
+		if pl.IsAlive() {
+			pl.LastAlivePosition = pos
+		}
+	})
 
 	// General info
 	playerEntity.FindProperty("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
@@ -214,7 +233,14 @@ func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
 
 	playerEntity.BindProperty("m_angEyeAngles[1]", &pl.ViewDirectionX, st.ValTypeFloat32)
 	playerEntity.BindProperty("m_angEyeAngles[0]", &pl.ViewDirectionY, st.ValTypeFloat32)
-	playerEntity.BindProperty("m_flFlashDuration", &pl.FlashDuration, st.ValTypeFloat32)
+	playerEntity.FindProperty("m_flFlashDuration").OnUpdate(func(val st.PropertyValue) {
+		if val.FloatVal == 0 {
+			pl.FlashTick = 0
+		} else {
+			pl.FlashTick = p.gameState.ingameTick
+		}
+		pl.FlashDuration = val.FloatVal
+	})
 
 	// Velocity
 	playerEntity.BindProperty("localdata.m_vecVelocity[0]", &pl.Velocity.X, st.ValTypeFloat64)
@@ -279,6 +305,10 @@ func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
 		}
 		pl.IsDefusing = val.IntVal != 0
 	})
+
+	if isNew && pl.SteamID != 0 {
+		p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
+	}
 }
 
 func (p *Parser) bindWeapons() {

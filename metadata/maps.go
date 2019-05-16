@@ -26,91 +26,23 @@ func (m Map) TranslateScale(x, y float64) (float64, float64) {
 	return x / m.Scale, y / m.Scale
 }
 
+// makeMap creates a map stuct initialized with the given parameters.
+func makeMap(name string, x, y, scale float64) Map {
+	return Map{Name: name, PZero: r2.Point{X: x, Y: y}, Scale: scale}
+}
+
 // Pre-defined map translations.
 var (
-	MapDeCache = Map{
-		Name: "de_cache",
-		PZero: r2.Point{
-			X: -1950,
-			Y: 3200,
-		},
-		Scale: 5.4,
-	}
-
-	MapDeCanals = Map{
-		Name: "de_canals",
-		PZero: r2.Point{
-			X: -2496,
-			Y: 1792,
-		},
-		Scale: 4,
-	}
-
-	MapDeCbble = Map{
-		Name: "de_cbble",
-		PZero: r2.Point{
-			X: -3840,
-			Y: 3072,
-		},
-		Scale: 6,
-	}
-
-	MapDeDust2 = Map{
-		Name: "de_dust2",
-		PZero: r2.Point{
-			X: -2400,
-			Y: 3383,
-		},
-		Scale: 4.4,
-		// Not sure what these are:
-		//Rotate: 1,
-		//Zoom:   1.1,
-	}
-
-	MapDeInferno = Map{
-		Name: "de_inferno",
-		PZero: r2.Point{
-			X: -2087,
-			Y: 3870,
-		},
-		Scale: 4.9,
-	}
-
-	MapDeMirage = Map{
-		Name: "de_mirage",
-		PZero: r2.Point{
-			X: -3230,
-			Y: 1713,
-		},
-		Scale: 5,
-	}
-
-	MapDeNuke = Map{
-		Name: "de_nuke",
-		PZero: r2.Point{
-			X: -3453,
-			Y: 2887,
-		},
-		Scale: 7,
-	}
-
-	MapDeOverpass = Map{
-		Name: "de_overpass",
-		PZero: r2.Point{
-			X: -4831,
-			Y: 1781,
-		},
-		Scale: 5.2,
-	}
-
-	MapDeTrain = Map{
-		Name: "de_train",
-		PZero: r2.Point{
-			X: -2477,
-			Y: 2392,
-		},
-		Scale: 4.7,
-	}
+	MapDeCache    = makeMap("de_cache", -2000, 3250, 5.5)
+	MapDeCanals   = makeMap("de_canals", -2496, 1792, 4)
+	MapDeCbble    = makeMap("de_cbble", -3840, 3072, 6)
+	MapDeDust2    = makeMap("de_dust2", -2476, 3239, 4.4)
+	MapDeInferno  = makeMap("de_inferno", -2087, 3870, 4.9)
+	MapDeMirage   = makeMap("de_mirage", -3230, 1713, 5)
+	MapDeNuke     = makeMap("de_nuke", -3453, 2887, 7)
+	MapDeOverpass = makeMap("de_overpass", -4831, 1781, 5.2)
+	MapDeTrain    = makeMap("de_train", -2477, 2392, 4.7)
+	MapDeVertigo  = makeMap("de_vertigo", -3168, 1762, 4)
 )
 
 // MapNameToMap translates a map name to a Map.
@@ -124,4 +56,5 @@ var MapNameToMap = map[string]Map{
 	"de_nuke":     MapDeNuke,
 	"de_overpass": MapDeOverpass,
 	"de_train":    MapDeTrain,
+	"de_vertigo":  MapDeVertigo,
 }

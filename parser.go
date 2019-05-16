@@ -10,7 +10,8 @@ import (
 
 	bit "github.com/visual42/demoinfocs-golang/bitread"
 	common "github.com/visual42/demoinfocs-golang/common"
-	events "github.com/visual42/demoinfocs-golang/events"
+
+	//events "github.com/visual42/demoinfocs-golang/events"
 	msg "github.com/visual42/demoinfocs-golang/msg"
 	st "github.com/visual42/demoinfocs-golang/sendtables"
 )
@@ -48,6 +49,7 @@ type Parser struct {
 	additionalNetMessageCreators map[int]NetMessageCreator // Map of net-message-IDs to NetMessageCreators (for parsing custom net-messages)
 	msgQueue                     chan interface{}          // Queue of net-messages
 	msgDispatcher                dp.Dispatcher             // Net-message dispatcher
+	gameEventHandler             gameEventHandler
 	eventDispatcher              dp.Dispatcher
 	currentFrame                 int                // Demo-frame, not ingame-tick
 	header                       *common.DemoHeader // Pointer so we can check for nil
@@ -69,7 +71,7 @@ type Parser struct {
 	gameEventDescs       map[int32]*msg.CSVCMsg_GameEventListDescriptorT // Maps game-event IDs to descriptors
 	grenadeModelIndices  map[int]common.EquipmentElement                 // Used to map model indices to grenades (used for grenade projectiles)
 	stringTables         []*msg.CSVCMsg_CreateStringTable                // Contains all created sendtables, needed when updating them
-	currentFlashEvents   []events.PlayerFlashed                          // Contains flash events that need to be dispatched at the end of a tick
+	delayedEvents        []interface{}                                   // Contains events that need to be dispatched at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
 }
 
 type bombsite struct {
@@ -234,6 +236,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) *Parser {
 	p.cancelChan = make(chan struct{}, 1)
 	p.gameState = newGameState()
 	p.grenadeModelIndices = make(map[int]common.EquipmentElement)
+	p.gameEventHandler = newGameEventHandler(&p)
 
 	// Attach proto msg handlers
 	p.msgDispatcher.RegisterHandler(p.handlePacketEntities)

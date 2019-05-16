@@ -89,9 +89,9 @@ func (p *Parser) ParseToEnd() (err error) {
 	}()
 
 	if p.header == nil {
-		_, err := p.ParseHeader()
+		_, err = p.ParseHeader()
 		if err != nil {
-			return err
+			return
 		}
 	}
 
@@ -106,8 +106,8 @@ func (p *Parser) ParseToEnd() (err error) {
 			}
 		}
 
-		if pErr := p.error(); pErr != nil {
-			return pErr
+		if err = p.error(); err != nil {
+			return
 		}
 	}
 }
@@ -138,32 +138,31 @@ May panic if the demo is corrupt in some way.
 
 See also: ParseToEnd() for parsing the complete demo in one go (faster).
 */
-func (p *Parser) ParseNextFrame() (b bool, err error) {
+func (p *Parser) ParseNextFrame() (moreFrames bool, err error) {
 	defer func() {
+		// Make sure all the messages of the frame are handled
+		p.msgDispatcher.SyncAllQueues()
+
+		// Close msgQueue (only if we are done)
+		if p.msgQueue != nil && !moreFrames {
+			close(p.msgQueue)
+		}
+
 		if err == nil {
 			err = recoverFromUnexpectedEOF(recover())
 		}
 	}()
 
 	if p.header == nil {
-		_, err := p.ParseHeader()
+		_, err = p.ParseHeader()
 		if err != nil {
-			return false, err
+			return
 		}
 	}
 
-	b = p.parseFrame()
+	moreFrames = p.parseFrame()
 
-	// Make sure all the messages of the frame are handled
-	p.msgDispatcher.SyncAllQueues()
-
-	// Close msgQueue if we are done
-	if !b {
-		close(p.msgQueue)
-	}
-
-	err = p.error()
-	return
+	return moreFrames, p.error()
 }
 
 // Demo commands as documented at https://developer.valvesoftware.com/wiki/DEM_Format
@@ -251,41 +250,12 @@ type frameParsedTokenType struct{}
 var frameParsedToken = new(frameParsedTokenType)
 
 func (p *Parser) handleFrameParsed(*frameParsedTokenType) {
-	defer func() {
-		p.setError(recoverFromUnexpectedEOF(recover()))
-	}()
-
-	for k, rp := range p.rawPlayers {
-		// We need to re-map the players from their entityID to their UID.
-		// This is necessary because we don't always have the UID when the player connects (or something like that, not really sure tbh).
-		// k+1 for index -> ID
-		if pl := p.gameState.playersByEntityID[k+1]; pl != nil {
-			pl.Name = rp.name
-			pl.SteamID = rp.xuid
-			pl.IsBot = rp.isFakePlayer
-			pl.AdditionalPlayerInformation = &p.additionalPlayerInfo[pl.EntityID]
-
-			if pl.IsAlive() {
-				pl.LastAlivePosition = pl.Position
-			}
-
-			if p.gameState.playersByUserID[rp.userID] == nil {
-				p.gameState.playersByUserID[rp.userID] = pl
-				pl.UserID = rp.userID
-
-				if pl.SteamID != 0 {
-					p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
-				}
-			}
-		}
-	}
-
 	// PlayerFlashed events need to be dispatched at the end of the tick
 	// because Player.FlashDuration is updated after the game-events are parsed.
-	for _, e := range p.currentFlashEvents {
+	for _, e := range p.delayedEvents {
 		p.eventDispatcher.Dispatch(e)
 	}
-	p.currentFlashEvents = p.currentFlashEvents[:0]
+	p.delayedEvents = p.delayedEvents[:0]
 
 	p.currentFrame++
 	p.eventDispatcher.Dispatch(events.TickDone{})
