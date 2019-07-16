@@ -1,3 +1,4 @@
+github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dustin/go-heatmap v0.0.0-20180603032536-b89dbd73785a h1:o0oeorr6BKW/lHrT2NWX1CQn6LDhr5lvAPIIjTDC1bg=
@@ -24,10 +25,15 @@ github.com/markus-wa/quickhull-go v1.0.1 h1:msrwpA4mlVI2Rww6ZzQuCxv+axXVknMaMJYO
 github.com/markus-wa/quickhull-go v1.0.1/go.mod h1:gMPnFb0DpuzRpbHesp64Nq4oFXE5SglAD86nlKrkETs=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
+github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.1.1 h1:2vfRuCMp5sSVIDSqO8oNnWJq7mPa6KVP3iPIwFBuy8A=
 github.com/stretchr/objx v0.1.1/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
+github.com/stretchr/objx v0.2.0 h1:Hbg2NidpLE8veEBkEZTL3CvlkUIVzuU9jDplZO54c48=
+github.com/stretchr/objx v0.2.0/go.mod h1:qt09Ya8vawLte6SNmTgCsAVtYtaKzEcn8ATUoHMkEqE=
 github.com/stretchr/testify v1.2.2 h1:bSDNvY7ZPG5RlJ8otE/7V6gMiyenm9RtJ7IUVIAoJ1w=
 github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=
+github.com/stretchr/testify v1.3.0 h1:TivCn/peBQ7UY8ooIcPgZFpTNSz0Q2U6UrFlUfqbe0Q=
+github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
 github.com/viSual42/demoinfocs-golang v0.5.8 h1:/WTossohH5kpeAPo6qU5HPN7kA98/iCe2Wlujyfupto=
 github.com/viSual42/demoinfocs-golang v0.5.8/go.mod h1:k0+v3/t8QlXX4O5pi07GXw5qN9FxmcOae99xae7wOSE=
 github.com/visual42/demoinfocs-golang v0.5.8 h1:/qCYwSBxWPTb+kvn5yLM3G9I9FJXlZcEOs/eMaL9+D4=

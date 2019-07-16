@@ -5,9 +5,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/markus-wa/demoinfocs-golang/common"
-	st "github.com/markus-wa/demoinfocs-golang/sendtables"
-	"github.com/markus-wa/demoinfocs-golang/sendtables/fake"
+	"github.com/visual42/demoinfocs-golang/common"
+	st "github.com/visual42/demoinfocs-golang/sendtables"
+	"github.com/visual42/demoinfocs-golang/sendtables/fake"
 )
 
 func TestNewGameState(t *testing.T) {

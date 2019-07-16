@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	dem "github.com/markus-wa/demoinfocs-golang"
-	common "github.com/markus-wa/demoinfocs-golang/common"
-	events "github.com/markus-wa/demoinfocs-golang/events"
-	ex "github.com/markus-wa/demoinfocs-golang/examples"
+	dem "github.com/visual42/demoinfocs-golang"
+	common "github.com/visual42/demoinfocs-golang/common"
+	events "github.com/visual42/demoinfocs-golang/events"
+	ex "github.com/visual42/demoinfocs-golang/examples"
 )
 
 // Run like this: go run print_events.go -demo /path/to/demo.dem

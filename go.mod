@@ -9,8 +9,8 @@ require (
 	github.com/markus-wa/gobitread v0.2.2
 	github.com/markus-wa/godispatch v1.1.0
 	github.com/markus-wa/quickhull-go v0.0.0-20190116183559-9fb9702adbda
-	github.com/stretchr/testify v1.2.2
-	github.com/viSual42/demoinfocs-golang v0.5.8 // indirect
+	github.com/stretchr/objx v0.2.0 // indirect
+	github.com/stretchr/testify v1.3.0
 )
 
 go 1.11

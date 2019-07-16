@@ -44,8 +44,8 @@ func TestDemoHeader_FrameTime_PlaybackFrames_Zero(t *testing.T) {
 }
 
 func TestTeamState_Team(t *testing.T) {
-	assert.Equal(t, TeamTerrorists, NewTeamState(TeamTerrorists, nil).Team())
-	assert.Equal(t, TeamCounterTerrorists, NewTeamState(TeamCounterTerrorists, nil).Team())
+	assert.Equal(t, TeamTerrorists, NewTeamState(TeamTerrorists).Team())
+	assert.Equal(t, TeamCounterTerrorists, NewTeamState(TeamCounterTerrorists).Team())
 }
 
 func TestTeamState_Members(t *testing.T) {

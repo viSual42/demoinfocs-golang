@@ -3,8 +3,8 @@ package demoinfocs
 import (
 	"fmt"
 
-	events "github.com/markus-wa/demoinfocs-golang/events"
-	msg "github.com/markus-wa/demoinfocs-golang/msg"
+	events "github.com/visual42/demoinfocs-golang/events"
+	msg "github.com/visual42/demoinfocs-golang/msg"
 )
 
 func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {

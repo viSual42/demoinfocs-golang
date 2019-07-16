@@ -6,9 +6,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/markus-wa/demoinfocs-golang/common"
-	"github.com/markus-wa/demoinfocs-golang/events"
-	"github.com/markus-wa/demoinfocs-golang/msg"
+	"github.com/visual42/demoinfocs-golang/common"
+	"github.com/visual42/demoinfocs-golang/events"
+	"github.com/visual42/demoinfocs-golang/msg"
 )
 
 // See #90
