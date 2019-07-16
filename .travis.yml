@@ -27,7 +27,7 @@ before_script:
   - git fetch
 
   # Install golangci-lint
-  - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $GOPATH/bin v1.15.0
+  - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $GOPATH/bin v1.16.0
 
   # Download test data
   - pushd cs-demos && git lfs pull -I '*' && popd
@@ -51,7 +51,7 @@ script:
   # Run race tests
   - go test -v -race -run "$race_tests" -timeout 15m
 
-  # We run all tests again to get full coverage, technically unncecessary tho
+  # We run all tests again to get full coverage, technically unnecessary tho
   - coverpkg_ignore='/(msg|fake)'
   # coverpkg for multiple mains is broken in 1.12, so we need to exclude the examples from coverage
   # https://github.com/golang/go/issues/30374

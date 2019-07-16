@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	proto "github.com/gogo/protobuf/proto"
+	"github.com/gogo/protobuf/proto"
 	dispatch "github.com/markus-wa/godispatch"
 
 	dem "github.com/visual42/demoinfocs-golang"
@@ -186,6 +186,10 @@ func TestUnexpectedEndOfDemo(t *testing.T) {
 }
 
 func TestCancelParseToEnd(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping test")
+	}
+
 	f, err := os.Open(defaultDemPath)
 	if err != nil {
 		t.Fatal(err)
@@ -198,7 +202,7 @@ func TestCancelParseToEnd(t *testing.T) {
 	var tix int
 
 	var handlerID dispatch.HandlerIdentifier
-	handlerID = p.RegisterEventHandler(func(events.TickDone) {
+	handlerID = p.RegisterEventHandler(func(events.FrameDone) {
 		tix++
 		if tix == maxTicks {
 			p.Cancel()
@@ -211,7 +215,7 @@ func TestCancelParseToEnd(t *testing.T) {
 		t.Error("Parsing cancelled but error was not ErrCancelled:", err)
 	}
 	if tix > maxTicks {
-		t.Error("TickDoneEvent handler was triggered after being unregistered")
+		t.Error("FrameDone handler was triggered after being unregistered")
 	}
 }
 

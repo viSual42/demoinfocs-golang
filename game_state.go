@@ -127,10 +127,10 @@ func newGameState() *GameState {
 		grenadeProjectiles: make(map[int]*common.GrenadeProjectile),
 		infernos:           make(map[int]*common.Inferno),
 		entities:           make(map[int]*st.Entity),
-		tState:             common.NewTeamState(common.TeamTerrorists),
-		ctState:            common.NewTeamState(common.TeamCounterTerrorists),
 	}
 
+	gs.tState = common.NewTeamState(common.TeamTerrorists, gs.Participants().TeamMembers)
+	gs.ctState = common.NewTeamState(common.TeamCounterTerrorists, gs.Participants().TeamMembers)
 	gs.tState.Opponent = &gs.ctState
 	gs.ctState.Opponent = &gs.tState
 
@@ -231,4 +231,24 @@ func (ptcp Participants) FindByHandle(handle int) *common.Player {
 func (ptcp Participants) initalizeSliceFromByUserID() ([]*common.Player, map[int]*common.Player) {
 	byUserID := ptcp.ByUserID()
 	return make([]*common.Player, 0, len(byUserID)), byUserID
+}
+
+// SpottersOf returns a list of all players who have spotted the passed player.
+func (ptcp Participants) SpottersOf(spotted *common.Player) (spotters []*common.Player) {
+	for _, other := range ptcp.playersByUserID {
+		if spotted.IsSpottedBy(other) {
+			spotters = append(spotters, other)
+		}
+	}
+	return
+}
+
+// SpottedBy returns a list of all players that the passed player has spotted.
+func (ptcp Participants) SpottedBy(spotter *common.Player) (spotted []*common.Player) {
+	for _, other := range ptcp.playersByUserID {
+		if other.Entity != nil && other.IsSpottedBy(spotter) {
+			spotted = append(spotted, other)
+		}
+	}
+	return
 }

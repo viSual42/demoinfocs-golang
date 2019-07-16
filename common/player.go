@@ -9,6 +9,8 @@ import (
 
 // Player contains mostly game-relevant player information.
 type Player struct {
+	demoInfoProvider demoInfoProvider // provider for demo info such as tick-rate or current tick
+
 	SteamID                     int64     // int64 representation of the User's Steam ID
 	Position                    r3.Vector // In-game coordinates. Like the one you get from cl_showpos 1
 	LastAlivePosition           r3.Vector // The location where the player was last alive. Should be equal to Position if the player is still alive.
@@ -29,19 +31,16 @@ type Player struct {
 	AdditionalPlayerInformation *AdditionalPlayerInformation // Mostly scoreboard information such as kills, deaths, etc.
 	ViewDirectionX              float32
 	ViewDirectionY              float32
-	FlashDuration               float32 // Blindness duration from the flashbang currently affecting the player (seconds)
-	FlashTick                   int     // In-game tick at which the player was last flashed
-	Team                        Team
+	FlashDuration               float32    // Blindness duration from the flashbang currently affecting the player (seconds)
+	FlashTick                   int        // In-game tick at which the player was last flashed
 	TeamState                   *TeamState // When keeping the reference make sure you notice when the player changes teams
+	Team                        Team
 	IsBot                       bool
 	IsConnected                 bool
 	IsDucking                   bool
 	IsDefusing                  bool
 	HasDefuseKit                bool
 	HasHelmet                   bool
-
-	tickRate           float64            // the in-game tick rate, used for IsBlinded()
-	ingameTickProvider ingameTickProvider // provider for the current in-game tick, used for IsBlinded()
 }
 
 // IsAlive returns true if the Hp of the player are > 0.
@@ -73,11 +72,12 @@ func (p *Player) flashDurationTimeFull() time.Duration {
 func (p *Player) FlashDurationTimeRemaining() time.Duration {
 	// In case the demo header is broken
 	// TODO: read tickRate from CVARs as fallback
-	if p.tickRate == 0 {
+	tickRate := p.demoInfoProvider.TickRate()
+	if tickRate == 0 {
 		return time.Duration(p.FlashDuration) * time.Second
 	}
 
-	timeSinceFlash := time.Duration(float64(p.ingameTickProvider()-p.FlashTick) / p.tickRate * float64(time.Second))
+	timeSinceFlash := time.Duration(float64(p.demoInfoProvider.IngameTick()-p.FlashTick) / tickRate * float64(time.Second))
 	remaining := p.flashDurationTimeFull() - timeSinceFlash
 	if remaining < 0 {
 		return 0
@@ -114,28 +114,88 @@ func (p *Player) Weapons() []*Equipment {
 	return res
 }
 
-// AdditionalPlayerInformation contains mostly scoreboard information.
-type AdditionalPlayerInformation struct {
-	Kills          int
-	Deaths         int
-	Assists        int
-	Score          int
-	MVPs           int
-	Ping           int
-	ClanTag        string
-	TotalCashSpent int
+// IsSpottedBy returns true if the player has been spotted by the other player.
+func (p *Player) IsSpottedBy(other *Player) bool {
+	if p.Entity == nil {
+		return false
+	}
+
+	// TODO extract ClientSlot() function
+	clientSlot := other.EntityID - 1
+	bit := uint(clientSlot)
+	var mask st.IProperty
+	if bit < 32 {
+		mask = p.Entity.FindPropertyI("m_bSpottedByMask.000")
+	} else {
+		bit -= 32
+		mask = p.Entity.FindPropertyI("m_bSpottedByMask.001")
+	}
+	return (mask.Value().IntVal & (1 << bit)) != 0
 }
 
-// ingameTickProvider is a function that returns the current ingame tick of the demo related to a player.
-type ingameTickProvider func() int
+// HasSpotted returns true if the player has spotted the other player.
+func (p *Player) HasSpotted(other *Player) bool {
+	return other.IsSpottedBy(p)
+}
+
+// IsInBombZone returns whether the player is currently in the bomb zone or not.
+func (p *Player) IsInBombZone() bool {
+	return p.Entity.FindPropertyI("m_bInBombZone").Value().IntVal == 1
+}
+
+// IsInBuyZone returns whether the player is currently in the buy zone or not.
+func (p *Player) IsInBuyZone() bool {
+	return p.Entity.FindPropertyI("m_bInBuyZone").Value().IntVal == 1
+}
+
+// IsWalking returns whether the player is currently walking (sneaking) in or not.
+func (p *Player) IsWalking() bool {
+	return p.Entity.FindPropertyI("m_bIsWalking").Value().IntVal == 1
+}
+
+// IsScoped returns whether the player is currently scoped in or not.
+func (p *Player) IsScoped() bool {
+	return p.Entity.FindPropertyI("m_bIsScoped").Value().IntVal == 1
+}
+
+// CashSpentThisRound returns the amount of cash the player spent in the current round.
+//
+// Deprecated, use Player.AdditionalPlayerInformation.CashSpentThisRound instead.
+func (p *Player) CashSpentThisRound() int {
+	return p.AdditionalPlayerInformation.CashSpentThisRound
+}
+
+// CashSpentTotal returns the amount of cash the player spent during the whole game up to the current point.
+//
+// Deprecated, use Player.AdditionalPlayerInformation.TotalCashSpent instead.
+func (p *Player) CashSpentTotal() int {
+	return p.AdditionalPlayerInformation.TotalCashSpent
+}
+
+// AdditionalPlayerInformation contains mostly scoreboard information.
+type AdditionalPlayerInformation struct {
+	Kills              int
+	Deaths             int
+	Assists            int
+	Score              int
+	MVPs               int
+	Ping               int
+	ClanTag            string
+	TotalCashSpent     int
+	CashSpentThisRound int
+}
+
+type demoInfoProvider interface {
+	IngameTick() int   // current in-game tick, used for IsBlinded()
+	TickRate() float64 // in-game tick rate, used for Player.IsBlinded()
+}
 
 // NewPlayer creates a *Player with an initialized equipment map.
 //
 // Intended for internal use only.
-func NewPlayer(tickRate float64, ingameTickProvider ingameTickProvider) *Player {
+func NewPlayer(demoInfoProvider demoInfoProvider) *Player {
 	return &Player{
-		RawWeapons:         make(map[int]*Equipment),
-		tickRate:           tickRate,
-		ingameTickProvider: ingameTickProvider,
+		RawWeapons:       make(map[int]*Equipment),
+		demoInfoProvider: demoInfoProvider,
 	}
 }

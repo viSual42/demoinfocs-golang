@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	r3 "github.com/golang/geo/r3"
+	"github.com/golang/geo/r3"
 
 	common "github.com/visual42/demoinfocs-golang/common"
 	events "github.com/visual42/demoinfocs-golang/events"
@@ -607,67 +607,4 @@ func getCommunityID(guid string) int64 {
 
 	// WTF are we doing here?
 	return valveMagicNumber + authID*2 + authSrv
-}
-
-func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
-	switch msg.ECstrike15UserMessages(um.MsgType) {
-	case msg.ECstrike15UserMessages_CS_UM_SayText:
-		st := new(msg.CCSUsrMsg_SayText)
-		err := st.Unmarshal(um.MsgData)
-		if err != nil {
-			p.eventDispatcher.Dispatch(events.ParserWarn{Message: fmt.Sprintf("Failed to decode SayText message: %s", err.Error())})
-		}
-
-		p.eventDispatcher.Dispatch(events.SayText{
-			EntIdx:    int(st.EntIdx),
-			IsChat:    st.Chat,
-			IsChatAll: st.Textallchat,
-			Text:      st.Text,
-		})
-
-	case msg.ECstrike15UserMessages_CS_UM_SayText2:
-		st := new(msg.CCSUsrMsg_SayText2)
-		err := st.Unmarshal(um.MsgData)
-		if err != nil {
-			p.eventDispatcher.Dispatch(events.ParserWarn{Message: fmt.Sprintf("Failed to decode SayText2 message: %s", err.Error())})
-		}
-
-		p.eventDispatcher.Dispatch(events.SayText2{
-			EntIdx:    int(st.EntIdx),
-			IsChat:    st.Chat,
-			IsChatAll: st.Textallchat,
-			MsgName:   st.MsgName,
-			Params:    st.Params,
-		})
-
-		switch st.MsgName {
-		case "Cstrike_Chat_All":
-			fallthrough
-		case "Cstrike_Chat_AllDead":
-			var sender *common.Player
-			for _, pl := range p.gameState.playersByUserID {
-				// This could be a problem if the player changed his name
-				// as the name is only set initially and never updated
-				if pl.Name == st.Params[0] {
-					sender = pl
-				}
-			}
-
-			p.eventDispatcher.Dispatch(events.ChatMessage{
-				Sender:    sender,
-				Text:      st.Params[1],
-				IsChatAll: st.Textallchat,
-			})
-
-		case "#CSGO_Coach_Join_T": // Ignore these
-		case "#CSGO_Coach_Join_CT":
-
-		default:
-			p.eventDispatcher.Dispatch(events.ParserWarn{Message: fmt.Sprintf("Skipped sending ChatMessageEvent for SayText2 with unknown MsgName %q", st.MsgName)})
-		}
-
-	default:
-		// TODO: handle more user messages (if they are interesting)
-		// Maybe msg.ECstrike15UserMessages_CS_UM_RadioText
-	}
 }

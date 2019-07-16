@@ -1,6 +1,6 @@
 # demoinfocs-golang - A CS:GO Demo Parser
 
-Is a Go library for super fast parsing and analysing of Counter Strike: Global Offensive (CS:GO) demos (aka replays). It is based on [Valve's demoinfogo](https://github.com/ValveSoftware/csgo-demoinfo) and [SatsHelix's demoinfo](https://github.com/StatsHelix/demoinfo).
+Is a Go library for super fast parsing and analysing of Counter Strike: Global Offensive (CS:GO) demos (aka replays). It is based on <a href="https://github.com/ValveSoftware/csgo-demoinfo" rel="external">Valve's demoinfogo</a> and <a href="https://github.com/StatsHelix/demoinfo" rel="external">SatsHelix's demoinfo</a>.
 
 [![GoDoc](https://godoc.org/github.com/markus-wa/demoinfocs-golang?status.svg)](https://godoc.org/github.com/markus-wa/demoinfocs-golang)
 [![Build Status](https://travis-ci.org/markus-wa/demoinfocs-golang.svg?branch=master)](https://travis-ci.org/markus-wa/demoinfocs-golang)
@@ -115,7 +115,7 @@ Check out the [examples](examples) folder for more examples, like [how to genera
 
 Two of the top priorities of this parser are performance and concurrency.
 
-Here are some benchmark results from a system with a Intel i7 2600k CPU and SSD disk running Windows 10 and a demo with 85'000 frames.
+Here are some benchmark results from a system with an Intel i7 2600k CPU and a SSD disk running Windows 10 and a demo with 85'000 frames.
 
 ### Overview
 
@@ -192,12 +192,12 @@ Should you need to re-generate the protobuf generated code in the `msg` package,
 
 		go get -u github.com/gogo/protobuf/protoc-gen-gogofaster
 
-[//]: # "The go get above needs two tabs so it's displayed as a) as part of the last list entry and b) as a code-block"
+[//]: # "The go get above needs two tabs so it's displayed a) as part of the last list entry and b) as a code-block"
 [//]: # "Oh and don't try to move these comments above it either"
 
 Make sure both are inside your `PATH` variable.
 
-After installing these use `go generate ./msg` to generate the protobuf code.
+After installing these use `go generate ./msg` to generate the protobuf code. If you're on Windows you'll need to run go generate from CMD, not Bash.
 
 
 ## License

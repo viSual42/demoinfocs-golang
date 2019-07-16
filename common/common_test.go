@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	r3 "github.com/golang/geo/r3"
-	assert "github.com/stretchr/testify/assert"
+	"github.com/golang/geo/r3"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestBombPosition(t *testing.T) {
@@ -39,7 +39,39 @@ func TestDemoHeader(t *testing.T) {
 	assert.Equal(t, time.Second/128, header.TickTime(), "TickTime should be 1/128")
 }
 
-func TestTeamState(t *testing.T) {
-	assert.Equal(t, TeamTerrorists, NewTeamState(TeamTerrorists).Team())
-	assert.Equal(t, TeamCounterTerrorists, NewTeamState(TeamCounterTerrorists).Team())
+func TestDemoHeader_FrameTime_PlaybackFrames_Zero(t *testing.T) {
+	assert.Zero(t, DemoHeader{}.FrameTime())
+}
+
+func TestTeamState_Team(t *testing.T) {
+	assert.Equal(t, TeamTerrorists, NewTeamState(TeamTerrorists, nil).Team())
+	assert.Equal(t, TeamCounterTerrorists, NewTeamState(TeamCounterTerrorists, nil).Team())
+}
+
+func TestTeamState_Members(t *testing.T) {
+	members := []*Player{new(Player), new(Player)}
+	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
+
+	assert.Equal(t, members, state.Members())
+}
+
+func TestTeamState_CurrentEquipmentValue(t *testing.T) {
+	members := []*Player{{CurrentEquipmentValue: 100}, {CurrentEquipmentValue: 200}}
+	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
+
+	assert.Equal(t, 300, state.CurrentEquipmentValue())
+}
+
+func TestTeamState_RoundStartEquipmentValue(t *testing.T) {
+	members := []*Player{{RoundStartEquipmentValue: 100}, {RoundStartEquipmentValue: 200}}
+	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
+
+	assert.Equal(t, 300, state.RoundStartEquipmentValue())
+}
+
+func TestTeamState_FreezeTimeEndEquipmentValue(t *testing.T) {
+	members := []*Player{{FreezetimeEndEquipmentValue: 100}, {FreezetimeEndEquipmentValue: 200}}
+	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
+
+	assert.Equal(t, 300, state.FreezeTimeEndEquipmentValue())
 }

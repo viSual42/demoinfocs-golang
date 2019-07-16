@@ -4,7 +4,10 @@ import (
 	"testing"
 	"time"
 
-	assert "github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/markus-wa/demoinfocs-golang/sendtables"
+	"github.com/markus-wa/demoinfocs-golang/sendtables/fake"
 )
 
 func TestPlayerActiveWeapon(t *testing.T) {
@@ -84,7 +87,7 @@ func TestPlayer_FlashDurationTime(t *testing.T) {
 }
 
 func TestPlayer_FlashDurationTimeRemaining_Default(t *testing.T) {
-	pl := NewPlayer(0, tickProvider(128))
+	pl := NewPlayer(mockDemoInfoProvider(0, 128))
 
 	assert.Equal(t, time.Duration(0), pl.FlashDurationTimeRemaining())
 }
@@ -114,17 +117,109 @@ func TestPlayer_FlashDurationTimeRemaining_FlashDuration_Over(t *testing.T) {
 }
 
 func TestPlayer_FlashDurationTimeRemaining_Fallback(t *testing.T) {
-	pl := NewPlayer(0, tickProvider(128))
+	pl := NewPlayer(mockDemoInfoProvider(0, 128))
 
 	pl.FlashDuration = 2
 	pl.FlashTick = 128 * 2
 	assert.Equal(t, 2*time.Second, pl.FlashDurationTimeRemaining())
 }
 
-func newPlayer(tick int) *Player {
-	return NewPlayer(128, tickProvider(tick))
+func TestPlayer_IsSpottedBy_HasSpotted_True(t *testing.T) {
+	pl := playerWithProperty("m_bSpottedByMask.000", sendtables.PropertyValue{IntVal: 2})
+	pl.EntityID = 1
+
+	other := newPlayer(0)
+	other.EntityID = 2
+
+	assert.True(t, pl.IsSpottedBy(other))
+	assert.True(t, other.HasSpotted(pl))
 }
 
-func tickProvider(tick int) ingameTickProvider {
-	return func() int { return tick }
+func TestPlayer_IsSpottedBy_HasSpotted_False(t *testing.T) {
+	pl := playerWithProperty("m_bSpottedByMask.000", sendtables.PropertyValue{IntVal: 0})
+	pl.EntityID = 1
+
+	other := newPlayer(0)
+	other.EntityID = 2
+
+	assert.False(t, pl.IsSpottedBy(other))
+	assert.False(t, other.HasSpotted(pl))
+}
+
+func TestPlayer_IsSpottedBy_HasSpotted_BitOver32(t *testing.T) {
+	pl := playerWithProperty("m_bSpottedByMask.001", sendtables.PropertyValue{IntVal: 1})
+	pl.EntityID = 1
+
+	other := newPlayer(0)
+	other.EntityID = 33
+
+	assert.True(t, pl.IsSpottedBy(other))
+	assert.True(t, other.HasSpotted(pl))
+}
+
+func TestPlayer_IsSpottedBy_EntityNull(t *testing.T) {
+	pl := new(Player)
+	pl.EntityID = 1
+	other := new(Player)
+	other.EntityID = 2
+
+	assert.False(t, pl.IsSpottedBy(other))
+	assert.False(t, other.HasSpotted(pl))
+}
+
+func TestPlayer_IsInBombZone(t *testing.T) {
+	pl := playerWithProperty("m_bInBombZone", sendtables.PropertyValue{IntVal: 1})
+
+	assert.True(t, pl.IsInBombZone())
+}
+
+func TestPlayer_IsInBuyZone(t *testing.T) {
+	pl := playerWithProperty("m_bInBuyZone", sendtables.PropertyValue{IntVal: 1})
+
+	assert.True(t, pl.IsInBuyZone())
+}
+
+func TestPlayer_IsWalking(t *testing.T) {
+	pl := playerWithProperty("m_bIsWalking", sendtables.PropertyValue{IntVal: 1})
+
+	assert.True(t, pl.IsWalking())
+}
+
+func TestPlayer_IsScoped(t *testing.T) {
+	pl := playerWithProperty("m_bIsScoped", sendtables.PropertyValue{IntVal: 1})
+
+	assert.True(t, pl.IsScoped())
+}
+
+func newPlayer(tick int) *Player {
+	return NewPlayer(mockDemoInfoProvider(128, tick))
+}
+
+type demoInfoProviderMock struct {
+	tickRate   float64
+	ingameTick int
+}
+
+func (p demoInfoProviderMock) TickRate() float64 {
+	return p.tickRate
+}
+
+func (p demoInfoProviderMock) IngameTick() int {
+	return p.ingameTick
+}
+
+func mockDemoInfoProvider(tickRate float64, tick int) demoInfoProvider {
+	return demoInfoProviderMock{
+		tickRate:   tickRate,
+		ingameTick: tick,
+	}
+}
+
+func playerWithProperty(propName string, value sendtables.PropertyValue) *Player {
+	entity := new(fake.Entity)
+	prop := new(fake.Property)
+	prop.On("Value").Return(value)
+	entity.On("FindPropertyI", propName).Return(prop)
+	pl := &Player{Entity: entity}
+	return pl
 }

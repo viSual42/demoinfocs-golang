@@ -1,5 +1,3 @@
-// Package fake provides basic mocks for IEntity.
-// See examples/mocking (https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/mocking).
 package fake
 
 import (
@@ -8,6 +6,8 @@ import (
 	"github.com/visual42/demoinfocs-golang/bitread"
 	st "github.com/visual42/demoinfocs-golang/sendtables"
 )
+
+var _ st.IEntity = new(Entity)
 
 // Entity is a mock for of sendtables.IEntity.
 type Entity struct {
@@ -29,9 +29,19 @@ func (e *Entity) Properties() []st.Property {
 	return e.Called().Get(0).([]st.Property)
 }
 
+// PropertiesI is a mock-implementation of IEntity.PropertiesI().
+func (e *Entity) PropertiesI() []st.IProperty {
+	return e.Called().Get(0).([]st.IProperty)
+}
+
 // FindProperty is a mock-implementation of IEntity.FindProperty().
 func (e *Entity) FindProperty(name string) *st.Property {
 	return e.Called(name).Get(0).(*st.Property)
+}
+
+// FindPropertyI is a mock-implementation of IEntity.FindPropertyI().
+func (e *Entity) FindPropertyI(name string) st.IProperty {
+	return e.Called(name).Get(0).(st.IProperty)
 }
 
 // BindProperty is a mock-implementation of IEntity.BindProperty().

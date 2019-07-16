@@ -8,14 +8,19 @@ package events
 import (
 	"time"
 
-	r3 "github.com/golang/geo/r3"
+	"github.com/golang/geo/r3"
 
 	common "github.com/visual42/demoinfocs-golang/common"
 	msg "github.com/visual42/demoinfocs-golang/msg"
 )
 
-// TickDone signals that a tick is done.
+// TickDone is deprecated, use the identical FrameDone event instead.
+// It does NOT signal the end of a tick, it signals the end of a demo-frame instead.
 type TickDone struct{}
+
+// FrameDone signals that a demo-frame has been processed.
+// A frame can contain multiple ticks (usually 2 or 4) if the tv_snapshotrate differs from the tick-rate the game was played at.
+type FrameDone struct{}
 
 // MatchStart signals that the match has started.
 type MatchStart struct{}
@@ -111,15 +116,16 @@ type Footstep struct {
 type PlayerTeamChange struct {
 	Player *common.Player
 
-	NewTeam common.Team
 	// TeamState of the old team.
 	// May be nil if player changed from spectators/unassigned (OldTeam == TeamSpectators || OldTeam == TeamUnassigned).
 	NewTeamState *common.TeamState
 
-	OldTeam common.Team
 	// TeamState of the old team.
 	// May be nil if player changed from spectators/unassigned (OldTeam == TeamSpectators || OldTeam == TeamUnassigned).
 	OldTeamState *common.TeamState
+
+	NewTeam common.Team
+	OldTeam common.Team
 
 	Silent bool
 	IsBot  bool
@@ -390,7 +396,8 @@ type ChatMessage struct {
 // RankUpdate signals the new rank. Not sure if this
 // only occurs if the rank changed.
 type RankUpdate struct {
-	SteamID    int64
+	SteamID    int64 // 32-bit SteamID. Deprecated, use SteamID32 instead
+	SteamID32  int32
 	RankOld    int
 	RankNew    int
 	WinCount   int
@@ -424,7 +431,7 @@ type DataTablesParsed struct{}
 
 // StringTableCreated signals that a string table was created via net message.
 // Can be useful for figuring out when player-info is available via Parser.GameState().[Playing]Participants().
-// E.g. after the table 'userinfo' has been created the player-data should be available after the next TickDone.
+// E.g. after the table 'userinfo' has been created the player-data should be available after the next FrameDone.
 // The reason it's not immediately available is because we need to do some post-processing to prep that data after a tick has finished.
 type StringTableCreated struct {
 	TableName string
@@ -494,4 +501,9 @@ type MatchStartedChanged struct {
 type IsWarmupPeriodChanged struct {
 	OldIsWarmupPeriod bool
 	NewIsWarmupPeriod bool
+}
+
+// PlayerSpottersChanged signals that a player's spotters (other players that can se him) changed.
+type PlayerSpottersChanged struct {
+	Spotted *common.Player
 }

@@ -5,7 +5,8 @@ import (
 	"sync"
 	"time"
 
-	r3 "github.com/golang/geo/r3"
+	"github.com/gogo/protobuf/proto"
+	"github.com/golang/geo/r3"
 	dp "github.com/markus-wa/godispatch"
 
 	bit "github.com/visual42/demoinfocs-golang/bitread"
@@ -50,13 +51,15 @@ type Parser struct {
 	msgQueue                     chan interface{}          // Queue of net-messages
 	msgDispatcher                dp.Dispatcher             // Net-message dispatcher
 	gameEventHandler             gameEventHandler
+	userMessageHandler           userMessageHandler
 	eventDispatcher              dp.Dispatcher
 	currentFrame                 int                // Demo-frame, not ingame-tick
 	header                       *common.DemoHeader // Pointer so we can check for nil
 	gameState                    *GameState
-	cancelChan                   chan struct{} // Non-anime-related, used for aborting the parsing
-	err                          error         // Contains a error that occurred during parsing if any
-	errLock                      sync.Mutex    // Used to sync up error mutations between parsing & handling go-routines
+	demoInfoProvider             demoInfoProvider // Provides demo infos to other packages that the core package depends on
+	cancelChan                   chan struct{}    // Non-anime-related, used for aborting the parsing
+	err                          error            // Contains a error that occurred during parsing if any
+	errLock                      sync.Mutex       // Used to sync up error mutations between parsing & handling go-routines
 
 	// Additional fields, mainly caching & tracking things
 
@@ -73,6 +76,11 @@ type Parser struct {
 	stringTables         []*msg.CSVCMsg_CreateStringTable                // Contains all created sendtables, needed when updating them
 	delayedEvents        []interface{}                                   // Contains events that need to be dispatched at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
 }
+
+// NetMessageCreator creates additional net-messages to be dispatched to net-message handlers.
+//
+// See also: ParserConfig.AdditionalNetMessageCreators & Parser.RegisterNetMessageHandler()
+type NetMessageCreator func() proto.Message
 
 type bombsite struct {
 	index  int
@@ -211,7 +219,7 @@ type ParserConfig struct {
 	// AdditionalNetMessageCreators maps net-message-IDs to creators (instantiators).
 	// The creators should return a new instance of the correct protobuf-message type (from the msg package).
 	// Interesting net-message-IDs can easily be discovered with the build-tag 'debugdemoinfocs'; when looking for 'UnhandledMessage'.
-	// Check out demopacket.go to see which net-messages are already being parsed by default.
+	// Check out parsing.go to see which net-messages are already being parsed by default.
 	// This is a beta feature and may be changed or replaced without notice.
 	AdditionalNetMessageCreators map[int]NetMessageCreator
 }
@@ -237,6 +245,8 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) *Parser {
 	p.gameState = newGameState()
 	p.grenadeModelIndices = make(map[int]common.EquipmentElement)
 	p.gameEventHandler = newGameEventHandler(&p)
+	p.userMessageHandler = newUserMessageHandler(&p)
+	p.demoInfoProvider = demoInfoProvider{parser: &p}
 
 	// Attach proto msg handlers
 	p.msgDispatcher.RegisterHandler(p.handlePacketEntities)
@@ -260,4 +270,16 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) *Parser {
 func (p *Parser) initMsgQueue(buf int) {
 	p.msgQueue = make(chan interface{}, buf)
 	p.msgDispatcher.AddQueues(p.msgQueue)
+}
+
+type demoInfoProvider struct {
+	parser *Parser
+}
+
+func (p demoInfoProvider) IngameTick() int {
+	return p.parser.gameState.IngameTick()
+}
+
+func (p demoInfoProvider) TickRate() float64 {
+	return p.parser.header.TickRate()
 }
